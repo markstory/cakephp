@@ -1,6 +1,6 @@
 <?php
 /**
- * A custom view class that is used for JSON responses
+ * A custom view class that is used for XML responses
  *
  * PHP 5
  *
@@ -18,13 +18,14 @@
  */
 
 App::uses('View', 'View');
+App::uses('Xml', 'Utility');
 
 /**
- * JsonView
+ * XmlView
  *
  * @package       Cake.View
  */
-class JsonView extends View {
+class XmlView extends View {
 
 /**
  * Constructor
@@ -32,20 +33,19 @@ class JsonView extends View {
  * @param Controller $controller
  */
 	public function __construct($controller) {
+		parent::__construct($controller);
+
 		if (is_object($controller)) {
-			foreach (array('viewVars', 'viewPath', 'view', 'response') as $var) {
-				$this->{$var} = $controller->{$var};
-			}
-			$this->response->type('json');
+			$controller->response->type('xml');
 		}
 	}
 
 /**
- * Render a JSON view.
+ * Render a XML view.
  *
  * Uses the special 'serialize' parameter to convert a set of
- * view variables into a JSON response.  Makes generating simple 
- * JSON responses very easy.  You can omit the 'serialize' parameter, 
+ * view variables into a XML response.  Makes generating simple 
+ * XML responses very easy.  You can omit the 'serialize' parameter, 
  * and use a normal view + layout as well.
  *
  * @param string $view The view being rendered.
@@ -53,13 +53,10 @@ class JsonView extends View {
  * @return string The rendered view.
  */
 	public function render($view = null, $layout = null) {
-		if ($view !== false && $viewFileName = $this->_getViewFileName($view)) {
-			$this->_render($viewFileName);
+		if (isset($this->viewVars['serialize']) && is_array($this->viewVars['serialize'])) {
+			return $this->output = Xml::fromArray($this->viewVars['serialize'])->asXML();
 		}
-
-		$data = isset($this->viewVars['serialize']) ? $this->viewVars['serialize'] : null;
-
-		return $this->output = json_encode($data);
+		return parent::render($view, $layout);
 	}
 
 }
