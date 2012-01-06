@@ -171,9 +171,7 @@
 
 		<propertyprompt propertyName="shipit" defaultValue="n" promptText="Ship the new commit and tag?" />
 		<condition property="noshipit" value="1">
-			<not>
-				<equals arg1="y" arg2="${shipit}" casesensitive="false" />
-			</not>"
+			<equals arg1="n" arg2="${shipit}" casesensitive="false" />
 		</condition>
 		<fail if="noshipit" msg="You said not to ship it." />
 
