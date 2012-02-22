@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // +--------------------------------------------------------------------------------------------+ //
-// CakePHP Version
+// CakePHP Version (with Zuha Edits)
 //
 // Holds a static string representing the current version of CakePHP
 //
