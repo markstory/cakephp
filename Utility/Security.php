@@ -130,10 +130,35 @@ class Security {
 /**
  * Encrypts/Decrypts a text using the given key.
  *
+ * Zuha cake core edit for server compoatibility. 
+ *
  * @param string $text Encrypted string to decrypt, normal string to encrypt
  * @param string $key Key to use
  * @return string Encrypted/Decrypted string
- */
+ */ 
+	public static function cipher($text, $key = '') {
+		#if (empty($key)) {
+		#	trigger_error(__d('cake_dev', 'You cannot use an empty key for Security::cipher()'), E_USER_WARNING);
+		#	return '';
+		#}
+	    $key .= Configure::read('Security.cipherSeed');
+	 
+	    $out = '';
+	    $textLength = strlen($text);
+	    $keyLength = strlen($key);
+	    $k = 0;
+	 
+	    for ($i = 0; $i < $textLength; $i++) {
+	        $seed = md5($key . $key[($k++) % $keyLength]);
+	        $mask = hexdec($seed[6] . $seed[9]); // :)
+	        $out .= chr(ord($text[$i]) ^ $mask);
+	    }
+	 
+	    return $out;
+	}
+
+/** 
+ * CakePHP 2.0 version of cipher()
 	public static function cipher($text, $key) {
 		if (empty($key)) {
 			trigger_error(__d('cake_dev', 'You cannot use an empty key for Security::cipher()'), E_USER_WARNING);
@@ -154,4 +179,5 @@ class Security {
 		srand();
 		return $out;
 	}
+ */
 }
