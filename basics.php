@@ -70,7 +70,7 @@ function config() {
  * @link http://book.cakephp.org/2.0/en/core-libraries/global-constants-and-functions.html#debug
  */
 function debug($var = false, $showHtml = null, $showFrom = true) {
-	if (Configure::read('debug') > 0) {
+	//if (Configure::read('debug') > 0) {
 		$file = '';
 		$line = '';
 		$lineInfo = '';
@@ -112,7 +112,7 @@ TEXT;
 			}
 		}
 		printf($template, $lineInfo, $var);
-	}
+	//}
 }
 
 if (!function_exists('sortByKey')) {
