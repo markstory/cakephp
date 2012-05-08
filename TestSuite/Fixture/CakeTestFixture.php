@@ -94,7 +94,7 @@ class CakeTestFixture {
 				array('connection' => 'default', 'records' => false),
 				is_array($this->import) ? $this->import : array('model' => $this->import)
 			);
-
+			
 			$this->Schema->connection = $import['connection'];
 			if (isset($import['model'])) {
 				list($plugin, $modelClass) = pluginSplit($import['model'], true);
@@ -109,7 +109,7 @@ class CakeTestFixture {
 				}
 				$this->fields = $model->schema(true);
 				$this->fields[$model->primaryKey]['key'] = 'primary';
-				$this->table = $db->fullTableName($model, false, false);
+				$this->table = $db->fullTableName($model, false, false);				
 				ClassRegistry::config(array('ds' => 'test'));
 				ClassRegistry::flush();
 			} elseif (isset($import['table'])) {
@@ -121,6 +121,29 @@ class CakeTestFixture {
 				$model->table = $import['table'];
 				$model->tablePrefix = $db->config['prefix'];
 				$this->fields = $model->schema(true);
+				ClassRegistry::flush();
+			} elseif (isset($import['config'])) {
+				list($plugin, $modelClass) = pluginSplit($import['config'], false);
+				$fileName = !empty($import['file']) ? $import['file'] : 'schema';
+				$filePath = 'Config' . DS. 'Schema' . DS . $fileName . '.php';
+				$file = !empty($plugin) ? App::pluginPath($plugin) . $filePath : ROOT . DS . APP_DIR . DS . $filePath;
+				$className = !empty($plugin) ? $plugin . 'Schema' : 'AppSchema';
+				$className = !empty($import['class']) ? $import['class'] : $className;
+				$this->table = !empty($import['table']) ? $import['table'] : Inflector::tableize($modelClass); 
+				if (!file_exists($file)) {
+					throw new Exception(__('Schema file %s missing', $file));
+				}
+				include($file);	
+				$Schema = new $className;				
+				$model = new Model(null, $this->table, $import['connection']);
+				$db = ConnectionManager::getDataSource($import['connection']);
+				$db->cacheSources = false;
+				$model->useDbConfig = $import['connection'];
+				$model->name = Inflector::camelize(Inflector::singularize($this->table));
+				$model->table = $this->table;
+				$model->tablePrefix = $db->config['prefix'];
+				$this->fields = $Schema->tables[$this->table];
+				ClassRegistry::config(array('ds' => 'test'));
 				ClassRegistry::flush();
 			}
 
