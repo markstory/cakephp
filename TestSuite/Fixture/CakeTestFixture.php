@@ -122,6 +122,7 @@ class CakeTestFixture {
 				$model->tablePrefix = $db->config['prefix'];
 				$this->fields = $model->schema(true);
 				ClassRegistry::flush();
+			### Start Zuha Edit ###
 			} elseif (isset($import['config'])) {
 				list($plugin, $modelClass) = pluginSplit($import['config'], false);
 				$fileName = !empty($import['file']) ? $import['file'] : 'schema';
@@ -129,12 +130,12 @@ class CakeTestFixture {
 				$file = !empty($plugin) ? App::pluginPath($plugin) . $filePath : ROOT . DS . APP_DIR . DS . $filePath;
 				$className = !empty($plugin) ? $plugin . 'Schema' : 'AppSchema';
 				$className = !empty($import['class']) ? $import['class'] : $className;
-				$this->table = !empty($import['table']) ? $import['table'] : Inflector::tableize($modelClass); 
+				$this->table = !empty($import['uses']) ? $import['uses'] : Inflector::tableize($modelClass); 
 				if (!file_exists($file)) {
 					throw new Exception(__('Schema file %s missing', $file));
 				}
 				include($file);	
-				$Schema = new $className;				
+				$Schema = new $className;		
 				$model = new Model(null, $this->table, $import['connection']);
 				$db = ConnectionManager::getDataSource($import['connection']);
 				$db->cacheSources = false;
@@ -145,6 +146,7 @@ class CakeTestFixture {
 				$this->fields = $Schema->tables[$this->table];
 				ClassRegistry::config(array('ds' => 'test'));
 				ClassRegistry::flush();
+			### End Zuha Edit ###
 			}
 
 			if (!empty($db->config['prefix']) && strpos($this->table, $db->config['prefix']) === 0) {
