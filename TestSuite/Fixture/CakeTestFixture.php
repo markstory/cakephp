@@ -134,15 +134,15 @@ class CakeTestFixture {
 				if (!file_exists($file)) {
 					throw new Exception(__('Schema file %s missing', $file));
 				}
-				include($file);	
+				include($file);
 				$Schema = new $className;		
-				$model = new Model(null, $this->table, $import['connection']);
+				/*$model = new Model(null, $this->table, $import['connection']);
 				$db = ConnectionManager::getDataSource($import['connection']);
-				$db->cacheSources = false;
+				db->cacheSources = false;
 				$model->useDbConfig = $import['connection'];
 				$model->name = Inflector::camelize(Inflector::singularize($this->table));
 				$model->table = $this->table;
-				$model->tablePrefix = $db->config['prefix'];
+				$model->tablePrefix = $db->config['prefix'];*/
 				$this->fields = $Schema->tables[$this->table];
 				ClassRegistry::config(array('ds' => 'test'));
 				ClassRegistry::flush();
