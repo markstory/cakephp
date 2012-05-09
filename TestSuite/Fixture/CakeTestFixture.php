@@ -138,7 +138,7 @@ class CakeTestFixture {
 				$Schema = new $className;		
 				/*$model = new Model(null, $this->table, $import['connection']);
 				$db = ConnectionManager::getDataSource($import['connection']);
-				db->cacheSources = false;
+				$db->cacheSources = false;
 				$model->useDbConfig = $import['connection'];
 				$model->name = Inflector::camelize(Inflector::singularize($this->table));
 				$model->table = $this->table;
