@@ -453,7 +453,6 @@ class Connection {
 		$statement = $this->execute($sql, $params);
 		$schema = [];
 
-		// TODO complete.
 		$fieldParams = $this->_driver->extraSchemaColumns();
 
 		while ($row = $statement->fetch('assoc')) {
