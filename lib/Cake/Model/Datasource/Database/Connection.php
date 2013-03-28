@@ -451,13 +451,9 @@ class Connection {
 	public function describe($table) {
 		list($sql, $params) = $this->_driver->describeTableSql($table);
 		$statement = $this->execute($sql, $params);
-		$schema = [];
 
-		$fieldParams = $this->_driver->extraSchemaColumns();
-		while ($row = $statement->fetch('assoc')) {
-			$schema += $this->_driver->convertFieldDescription($row, $fieldParams);
-		}
-		return $schema;
+		$rows = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
+		return $this->_driver->convertFieldDescriptions($rows);
 	}
 
 }

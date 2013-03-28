@@ -177,6 +177,21 @@ trait SqlDialectTrait {
 	}
 
 /**
+ * Converts field descriptions into abstract schema.
+ *
+ * @param type $rows
+ * @return array
+ */
+	public function convertFieldDescriptions($rows) {
+		$schema = [];
+		$fieldParams = $this->extraSchemaColumns();
+		foreach ($rows as $row) {
+			$schema += $this->convertFieldDescription($row, $fieldParams);
+		}
+		return $schema;
+	}
+
+/**
  * Get extra schema metadata columns
  *
  * This method returns information about additional metadata present in the data
