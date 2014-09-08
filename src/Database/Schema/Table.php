@@ -527,6 +527,21 @@ class Table {
 	}
 
 /**
+ * Get the names of all the foreign key constraints.
+ *
+ * @return array
+ */
+	public function foreignKeys() {
+		$keys = [];
+		foreach ($this->_constraints as $name => $data) {
+			if ($data['type'] === Table::CONSTRAINT_FOREIGN) {
+				$keys[] = $name;
+			}
+		}
+		return $keys;
+	}
+
+/**
  * Get/set the options for a table.
  *
  * Table options allow you to set platform specific table level options.
@@ -573,13 +588,58 @@ class Table {
 		foreach (array_keys($this->_columns) as $name) {
 			$columns[] = $dialect->columnSql($this, $name);
 		}
-		foreach (array_keys($this->_constraints) as $name) {
+		$support = $dialect->supportsAddConstraint();
+		$foreignKeys = $this->foreignKeys();
+		foreach ($this->_constraints as $name => $data) {
+			if ($support && in_array($name, $foreignKeys)) {
+				continue;
+			}
 			$constraints[] = $dialect->constraintSql($this, $name);
 		}
 		foreach (array_keys($this->_indexes) as $name) {
 			$indexes[] = $dialect->indexSql($this, $name);
 		}
 		return $dialect->createTableSql($this, $columns, $constraints, $indexes);
+	}
+
+/**
+ * Generate the SQL to add this tables foreign keys.
+ *
+ * If the dialect doesn't support adding foreign keys separately, an
+ * empty array will be returned, as the foriegn keys will be part of the
+ * createSQL() output.
+ *
+ * @param \Cake\Datasource\Connection $connection
+ * @return array List of SQL statements to create foreign keys.
+ */
+	public function addForeignKeySql(Connection $connection) {
+		$dialect = $connection->driver()->schemaDialect();
+		if (!$dialect->supportsAddConstraint()) {
+			return [];
+		}
+		$sql = [];
+		foreach ($this->foreignKeys() as $name) {
+			$sql[] = $dialect->createForeignKeySql($this, $name);
+		}
+		return $sql;
+	}
+
+/**
+ * Generate the SQL to drop all foreign keys on this table.
+ *
+ * Uses the connection to access the schema dialect to generate platform
+ * specific SQL.
+ *
+ * @param Connection $connection The connection to generate SQL for.
+ * @return array SQL to drop foreign keys.
+ */
+	public function dropForeignKeySql(Connection $connection) {
+		$dialect = $connection->driver()->schemaDialect();
+		$sql = [];
+		foreach ($this->foreignKeys() as $name) {
+			$sql[] = $dialect->dropForeignKeySql($this, $name);
+		}
+		return $sql;
 	}
 
 /**

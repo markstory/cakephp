@@ -570,36 +570,6 @@ SQL;
 				],
 				'UNIQUE KEY `length_idx` (`author_id`(5), `title`(4))'
 			],
-			[
-				'author_id_idx',
-				['type' => 'foreign', 'columns' => ['author_id'], 'references' => ['authors', 'id']],
-				'CONSTRAINT `author_id_idx` FOREIGN KEY (`author_id`) ' .
-				'REFERENCES `authors` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT'
-			],
-			[
-				'author_id_idx',
-				['type' => 'foreign', 'columns' => ['author_id'], 'references' => ['authors', 'id'], 'update' => 'cascade'],
-				'CONSTRAINT `author_id_idx` FOREIGN KEY (`author_id`) ' .
-				'REFERENCES `authors` (`id`) ON UPDATE CASCADE ON DELETE RESTRICT'
-			],
-			[
-				'author_id_idx',
-				['type' => 'foreign', 'columns' => ['author_id'], 'references' => ['authors', 'id'], 'update' => 'restrict'],
-				'CONSTRAINT `author_id_idx` FOREIGN KEY (`author_id`) ' .
-				'REFERENCES `authors` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT'
-			],
-			[
-				'author_id_idx',
-				['type' => 'foreign', 'columns' => ['author_id'], 'references' => ['authors', 'id'], 'update' => 'setNull'],
-				'CONSTRAINT `author_id_idx` FOREIGN KEY (`author_id`) ' .
-				'REFERENCES `authors` (`id`) ON UPDATE SET NULL ON DELETE RESTRICT'
-			],
-			[
-				'author_id_idx',
-				['type' => 'foreign', 'columns' => ['author_id'], 'references' => ['authors', 'id'], 'update' => 'noAction'],
-				'CONSTRAINT `author_id_idx` FOREIGN KEY (`author_id`) ' .
-				'REFERENCES `authors` (`id`) ON UPDATE NO ACTION ON DELETE RESTRICT'
-			],
 		];
 	}
 
@@ -620,6 +590,80 @@ SQL;
 		])->addConstraint($name, $data);
 
 		$this->assertEquals($expected, $schema->constraintSql($table, $name));
+	}
+
+/**
+ * Provide data for testing foreignKeySql
+ *
+ * @return array
+ */
+	public static function foreignKeySqlProvider() {
+		return [
+			[
+				'author_id_idx',
+				['type' => 'foreign', 'columns' => ['author_id'], 'references' => ['authors', 'id']],
+				'ALTER TABLE `articles` ADD CONSTRAINT `author_id_idx` FOREIGN KEY (`author_id`) ' .
+				'REFERENCES `authors` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT'
+			],
+			[
+				'author_id_idx',
+				['type' => 'foreign', 'columns' => ['author_id'], 'references' => ['authors', 'id'], 'update' => 'cascade'],
+				'ALTER TABLE `articles` ADD CONSTRAINT `author_id_idx` FOREIGN KEY (`author_id`) ' .
+				'REFERENCES `authors` (`id`) ON UPDATE CASCADE ON DELETE RESTRICT'
+			],
+			[
+				'author_id_idx',
+				['type' => 'foreign', 'columns' => ['author_id'], 'references' => ['authors', 'id'], 'update' => 'restrict'],
+				'ALTER TABLE `articles` ADD CONSTRAINT `author_id_idx` FOREIGN KEY (`author_id`) ' .
+				'REFERENCES `authors` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT'
+			],
+			[
+				'author_id_idx',
+				['type' => 'foreign', 'columns' => ['author_id'], 'references' => ['authors', 'id'], 'update' => 'setNull'],
+				'ALTER TABLE `articles` ADD CONSTRAINT `author_id_idx` FOREIGN KEY (`author_id`) ' .
+				'REFERENCES `authors` (`id`) ON UPDATE SET NULL ON DELETE RESTRICT'
+			],
+			[
+				'author_id_idx',
+				['type' => 'foreign', 'columns' => ['author_id'], 'references' => ['authors', 'id'], 'update' => 'noAction'],
+				'ALTER TABLE `articles` ADD CONSTRAINT `author_id_idx` FOREIGN KEY (`author_id`) ' .
+				'REFERENCES `authors` (`id`) ON UPDATE NO ACTION ON DELETE RESTRICT'
+			],
+		];
+	}
+
+/**
+ * Test foreign key creation queries.
+ *
+ * @dataProvider foreignKeySqlProvider
+ * @return void
+ */
+	public function testCreateForiegnKeySql($name, $data, $expected) {
+		$driver = $this->_getMockedDriver();
+		$schema = new MysqlSchema($driver);
+
+		$table = (new Table('articles'))->addColumn('title', [
+			'type' => 'string',
+			'length' => 255
+		])->addColumn('author_id', [
+			'type' => 'integer',
+		])->addConstraint($name, $data);
+
+		$this->assertEquals($expected, $schema->createForeignKeySql($table, $name));
+	}
+
+/**
+ * Test dropForeignKeySql
+ *
+ * @return void
+ */
+	public function testDropForeignKeySql() {
+		$driver = $this->_getMockedDriver();
+		$schema = new MysqlSchema($driver);
+
+		$table = new Table('articles');
+		$expected = 'ALTER TABLE `articles` DROP FOREIGN KEY `authors_idx`';
+		$this->assertEquals($expected, $schema->dropForeignKeySql($table, 'authors_idx'));
 	}
 
 /**

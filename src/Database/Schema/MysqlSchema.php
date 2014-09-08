@@ -351,6 +351,9 @@ class MysqlSchema extends BaseSchema {
  */
 	public function constraintSql(Table $table, $name) {
 		$data = $table->constraint($name);
+		if ($data['type'] === Table::CONSTRAINT_FOREIGN) {
+			throw new Exception('You must use createForeignKeySql() to create foreign keys.');
+		}
 		if ($data['type'] === Table::CONSTRAINT_PRIMARY) {
 			$columns = array_map(
 				[$this->_driver, 'quoteIdentifier'],
@@ -360,9 +363,6 @@ class MysqlSchema extends BaseSchema {
 		}
 		if ($data['type'] === Table::CONSTRAINT_UNIQUE) {
 			$out = 'UNIQUE KEY ';
-		}
-		if ($data['type'] === Table::CONSTRAINT_FOREIGN) {
-			$out = 'CONSTRAINT ';
 		}
 		$out .= $this->_driver->quoteIdentifier($name);
 		return $this->_keySql($out, $data);
@@ -387,21 +387,47 @@ class MysqlSchema extends BaseSchema {
  * {@inheritDoc}
  */
 	public function supportsAddConstraint() {
-		return false;
+		return true;
 	}
 
 /**
  * {@inheritDoc}
  */
 	public function createForeignKeySql(Table $table, $name) {
-		return [];
+		$data = $table->constraint($name);
+		if ($data['type'] !== Table::CONSTRAINT_FOREIGN) {
+			throw new Exception('Can only generate foreign key SQL for foreign keys.');
+		}
+		$columns = array_map(
+			[$this->_driver, 'quoteIdentifier'],
+			$data['columns']
+		);
+		foreach ($data['columns'] as $i => $column) {
+			if (isset($data['length'][$column])) {
+				$columns[$i] .= sprintf('(%d)', $data['length'][$column]);
+			}
+		}
+		return sprintf(
+			'ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s (%s) ON UPDATE %s ON DELETE %s',
+			$this->_driver->quoteIdentifier($table->name()),
+			$this->_driver->quoteIdentifier($name),
+			implode(', ', $columns),
+			$this->_driver->quoteIdentifier($data['references'][0]),
+			$this->_driver->quoteIdentifier($data['references'][1]),
+			$this->_foreignOnClause($data['update']),
+			$this->_foreignOnClause($data['delete'])
+		);
 	}
 
 /**
  * {@inheritDoc}
  */
 	public function dropForeignKeySql(Table $table, $name) {
-		return [];
+		return sprintf(
+			'ALTER TABLE %s DROP FOREIGN KEY %s',
+			$this->_driver->quoteIdentifier($table->name()),
+			$this->_driver->quoteIdentifier($name)
+		);
 	}
 
 /**
