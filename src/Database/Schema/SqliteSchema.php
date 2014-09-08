@@ -372,4 +372,27 @@ class SqliteSchema extends BaseSchema {
 		return $this->_hasSequences;
 	}
 
+/**
+ * SQLite does not support foreign keys to be created with alter table.
+ *
+ * @return false
+ */
+	public function supportsAddConstraint() {
+		return false;
+	}
+
+/**
+ * {@inheritDoc}
+ */
+	public function createForeignKeySql(Table $table, $name) {
+		return [];
+	}
+
+/**
+ * {@inheritDoc}
+ */
+	public function dropForeignKeySql(Table $table, $name) {
+		return [];
+	}
+
 }

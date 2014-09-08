@@ -489,4 +489,25 @@ class PostgresSchema extends BaseSchema {
 		return [$sql];
 	}
 
+/**
+ * {@inheritDoc}
+ */
+	public function supportsAddConstraint() {
+		return false;
+	}
+
+/**
+ * {@inheritDoc}
+ */
+	public function createForeignKeySql(Table $table, $name) {
+		return [];
+	}
+
+/**
+ * {@inheritDoc}
+ */
+	public function dropForeignKeySql(Table $table, $name) {
+		return [];
+	}
+
 }

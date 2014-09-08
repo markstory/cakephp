@@ -384,6 +384,27 @@ class MysqlSchema extends BaseSchema {
 	}
 
 /**
+ * {@inheritDoc}
+ */
+	public function supportsAddConstraint() {
+		return false;
+	}
+
+/**
+ * {@inheritDoc}
+ */
+	public function createForeignKeySql(Table $table, $name) {
+		return [];
+	}
+
+/**
+ * {@inheritDoc}
+ */
+	public function dropForeignKeySql(Table $table, $name) {
+		return [];
+	}
+
+/**
  * Helper method for generating key SQL snippets.
  *
  * @param string $prefix The key prefix

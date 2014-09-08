@@ -434,4 +434,31 @@ class SqlserverSchema extends BaseSchema {
 		];
 	}
 
+/**
+ * {@inheritDoc}
+ *
+ * @return false
+ */
+	public function supportsAddConstraint() {
+		return false;
+	}
+
+/**
+ * {@inheritDoc}
+ *
+ * @return array
+ */
+	public function createForiegnKeySql() {
+		return [];
+	}
+
+/**
+ * {@inheritDoc}
+ *
+ * @return array
+ */
+	public function dropForiegnKeySql() {
+		return [];
+	}
+
 }

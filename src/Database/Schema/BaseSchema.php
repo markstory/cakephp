@@ -231,4 +231,30 @@ abstract class BaseSchema {
  */
 	abstract public function truncateTableSql(Table $table);
 
+/**
+ * Returns true if the database platform supports
+ * ALTER TABLE .. ADD CONSTRAINT
+ *
+ * @return bool
+ */
+	abstract public function supportsAddConstraint();
+
+/**
+ * Generate the SQL to create the foreign keys on a table.
+ *
+ * @param \Cake\Database\Schema\Table $table The table instance.
+ * @param string $name The foreign key name.
+ * @return array An array of statements to add foreign keys.
+ */
+	abstract public function createForeignKeySql(Table $table, $name);
+
+/**
+ * Generate the SQL to drop the foreign keys from a table.
+ *
+ * @param \Cake\Database\Schema\Table $table The table instance.
+ * @param string $name The foreign key name.
+ * @return array An array of statements to drop foreign keys.
+ */
+	abstract public function dropForeignKeySql(Table $table, $name);
+
 }
