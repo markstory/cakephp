@@ -265,6 +265,48 @@ class TestFixture {
 	}
 
 /**
+ * Create foreign keys
+ *
+ * @param Connection $db An instance of the database object used to create the fixture table
+ * @return bool True on success, false on failure
+ */
+	public function createForeignKeys(Connection $db) {
+		if (empty($this->_schema)) {
+			return false;
+		}
+		try {
+			$sql = $this->_schema->createForeignKeySql($db);
+			foreach ($sql as $stmt) {
+				$db->execute($stmt)->closeCursor();
+			}
+		} catch (\Exception $e) {
+			return false;
+		}
+		return true;
+	}
+
+/**
+ * Drop foreign keys
+ *
+ * @param Connection $db An instance of the database object used to create the fixture table
+ * @return bool True on success, false on failure
+ */
+	public function dropForeignKeys(Connection $db) {
+		if (empty($this->_schema)) {
+			return false;
+		}
+		try {
+			$sql = $this->_schema->dropForeignKeySql($db);
+			foreach ($sql as $stmt) {
+				$db->execute($stmt)->closeCursor();
+			}
+		} catch (\Exception $e) {
+			return false;
+		}
+		return true;
+	}
+
+/**
  * Run before each tests is executed, should return a set of SQL statements to insert records for the table
  * of this fixture could be executed successfully.
  *

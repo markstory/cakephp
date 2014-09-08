@@ -612,7 +612,7 @@ class Table {
  * @param \Cake\Datasource\Connection $connection
  * @return array List of SQL statements to create foreign keys.
  */
-	public function addForeignKeySql(Connection $connection) {
+	public function createForeignKeySql(Connection $connection) {
 		$dialect = $connection->driver()->schemaDialect();
 		if (!$dialect->supportsAddConstraint()) {
 			return [];

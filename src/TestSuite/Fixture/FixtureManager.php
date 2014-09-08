@@ -232,6 +232,7 @@ class FixtureManager {
 						$this->_setupTable($fixture, $db, $tables, $test->dropTables);
 					}
 					if (!$test->dropTables) {
+						$fixture->dropForeignKeys($db);
 						$fixture->truncate($db);
 					}
 				}
@@ -245,6 +246,14 @@ class FixtureManager {
 				}
 			};
 			$this->_runOperation($fixtures, $insert);
+
+			// Once rows are in place add foreign keys
+			$keys = function($db, $fixtures) use ($test) {
+				foreach ($fixtures as $fixture) {
+					$fixture->createForeignKeys($db);
+				}
+			};
+			$this->_runOperation($fixtures, $keys);
 		} catch (\PDOException $e) {
 			$msg = sprintf('Unable to insert fixtures for "%s" test case. %s', get_class($test), $e->getMessage());
 			throw new Exception($msg);
@@ -301,6 +310,7 @@ class FixtureManager {
 			$connection = $db->configName();
 			foreach ($fixtures as $fixture) {
 				if (!empty($fixture->created) && in_array($connection, $fixture->created)) {
+					$fixture->dropForeignKeys($db);
 					$fixture->truncate($db);
 				}
 			}
